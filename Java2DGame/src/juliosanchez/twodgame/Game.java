@@ -2,7 +2,10 @@ package juliosanchez.twodgame;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
@@ -22,11 +25,15 @@ public class Game extends Canvas implements Runnable{
 	public boolean running = false;
 	public int tickCount = 0;
 	
+	//Image that we will use to add to the Canvas
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer().getData());
+	
+	//We can update this image variable with whatever we want an it will update that image
+	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	
 	public Game(){
-		//Set the size of your canva to one size so you cant change it
+		
+		//Set the size of your canvas to one size so you cant change it
 		//setting up dimensions for game screen
 		setMinimumSize(new Dimension(WIDTH*SCALE,HEIGHT*SCALE));
 		setMinimumSize(new Dimension(WIDTH*SCALE,HEIGHT*SCALE));
@@ -34,7 +41,7 @@ public class Game extends Canvas implements Runnable{
 		
 		frame = new JFrame(NAME);
 		
-		//deafult close operation, what happens when the JFrame is closed
+		//deafault close operation, what happens when the JFrame is closed
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		
@@ -112,10 +119,28 @@ public class Game extends Canvas implements Runnable{
 	public void tick(){
 		//will update the game variables and logic
 		tickCount++;
+		
+		for(int i = 0; i < pixels.length; i++){
+			pixels[i] = i+tickCount;
+		}
 	}
 	
 	public void render(){
 		//will print out what the logic in tick will print out
+
+		BufferStrategy bs = getBufferStrategy();
+		
+		if(bs == null){
+			createBufferStrategy(3); //triple buffering, reducing tearing
+			return;
+		}
+		
+		Graphics g = bs.getDrawGraphics();
+		
+		g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		
+		g.dispose();
+		bs.show();
 	}
 	
 	public static void main(String[] args){
